@@ -1,0 +1,8 @@
+# Server configuration
+host = "127.0.0.1"
+port = 8080
+workers = 4
+
+# Timeouts and intervals (in seconds)
+http_timeout = 3
+version_check_interval = 1800

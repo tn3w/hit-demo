@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>404 - Not Found | Highlight-It Demo</title>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <script
+            src="https://cdn.jsdelivr.net/npm/highlight-it@VERSION/dist/highlight-it-min.js"
+            integrity="SRI_HASH"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                HighlightIt.init();
+            });
+        </script>
+        <style>
+            :root {
+                --terminal-bg: #1e1e1e;
+                --terminal-text: #f0f0f0;
+                --terminal-prompt: #4CAF50;
+                --terminal-command: #64B5F6;
+                --terminal-error: #EF5350;
+                --terminal-header: #424242;
+                --terminal-header-text: #EEEEEE;
+                --terminal-border: #555555;
+                --terminal-btn-color: #ff8c00;
+            }
+
+            @media (prefers-color-scheme: light) {
+                :root {
+                    --terminal-bg: #f5f5f5;
+                    --terminal-text: #333333;
+                    --terminal-prompt: #2E7D32;
+                    --terminal-command: #1976D2;
+                    --terminal-error: #D32F2F;
+                    --terminal-header: #e0e0e0;
+                    --terminal-header-text: #424242;
+                    --terminal-border: #cccccc;
+                    --terminal-btn-color: #ff8c00;
+                }
+            }
+
+            body {
+                font-family: 'Courier New', monospace;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background-color: var(--terminal-bg);
+                color: var(--terminal-text);
+                transition: all 0.3s ease;
+            }
+
+            .terminal {
+                width: 100%;
+                max-width: min(800px, calc(100% - 40px));
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                margin: 0 auto;
+                background-color: var(--terminal-bg);
+                border: 1px solid var(--terminal-border);
+            }
+
+            .terminal-header {
+                background-color: var(--terminal-header);
+                padding: 8px 12px;
+                display: flex;
+                align-items: center;
+            }
+
+            .terminal-buttons {
+                display: flex;
+                gap: 8px;
+                margin-right: 10px;
+            }
+
+            .terminal-button {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .terminal-button.close {
+                background-color: #FF5F56;
+            }
+
+            .terminal-button.minimize {
+                background-color: #FFBD2E;
+            }
+
+            .terminal-button.maximize {
+                background-color: #27C93F;
+            }
+
+            .terminal-title {
+                color: var(--terminal-header-text);
+                font-size: 14px;
+                margin: 0;
+                text-align: center;
+                flex-grow: 1;
+            }
+
+            .terminal-body {
+                padding: 20px;
+                white-space: normal;
+                max-height: 60vh;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--terminal-border) var(--terminal-bg);
+            }
+
+            .terminal-body::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .terminal-body::-webkit-scrollbar-track {
+                background: var(--terminal-bg);
+            }
+
+            .terminal-body::-webkit-scrollbar-thumb {
+                background-color: var(--terminal-border);
+                border-radius: 4px;
+            }
+
+            .ascii-art {
+                font-family: monospace;
+                white-space: pre;
+                color: var(--terminal-error);
+                font-size: 16px;
+                line-height: 1.2;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+
+            .terminal-line {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .terminal-command-line {
+                margin-bottom: 0;
+            }
+
+            .terminal-output {
+                margin: 16px 0;
+            }
+
+            .prompt {
+                color: var(--terminal-prompt);
+            }
+
+            .command {
+                color: var(--terminal-command);
+            }
+
+            .error-message {
+                color: var(--terminal-error);
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin: 8px 0 16px;
+                text-align: center;
+            }
+
+            .back-link {
+                margin: 20px auto;
+                margin-bottom: 40px;
+                color: var(--terminal-btn-color);
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                display: block;
+                transition: all 0.2s ease;
+                font-weight: bold;
+                text-align: center;
+                border: 1px solid var(--terminal-btn-color);
+                background-color: var(--terminal-bg);
+                width: fit-content;
+                font-family: 'Courier New', monospace;
+            }
+
+            .back-link:hover {
+                background-color: var(--terminal-btn-color);
+                color: var(--terminal-bg);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+            
+            /* Reset highlight-it spacing */
+            .highlight-it {
+                margin: 0 !important;
+            }
+            
+            .highlight-it pre {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .highlightit-container {
+                border: 0 !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button close"></div>
+                    <div class="terminal-button minimize"></div>
+                    <div class="terminal-button maximize"></div>
+                </div>
+                <div class="terminal-title">user@highlight-it: ~</div>
+            </div>
+            <div class="terminal-body">
+                <div class="ascii-art">
+ _  _      ___    _  _   
+| || |    / _ \  | || |  
+| || |_  | | | | | || |_ 
+|__   _| | | | | |__   _|
+   | |   | |_| |    | |  
+   |_|    \___/     |_|  
+                </div>
+
+                <div class="error-message">Page Not Found</div>
+
+                <a href="/" class="back-link">Return to Homepage</a>
+                
+                <div class="terminal-line terminal-command-line">
+                    <div><span class="prompt">user@highlight-it:~$</span> <span class="command">cd PATH</span></div>
+                </div>
+                <div class="terminal-output">
+                    <code class="highlight-it" data-language="bash" data-theme="auto" data-no-header data-no-copy>cd: 'PATH': No such file or directory</code>
+                </div>
+
+                <div class="terminal-line terminal-command-line">
+                    <div><span class="prompt">user@highlight-it:~$</span> <span class="command">cat /var/highlight-it/404.py</span></div>
+                </div>
+                <div class="terminal-output">
+                    <code class="highlight-it" data-language="python" data-theme="auto" data-no-header>
+# Error 404 - Page Not Found
+class HTTPError(Exception):
+    """Base class for HTTP errors."""
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+        super().__init__(f"{code}: {message}")
+
+# The error that occurred
+error = HTTPError(
+    code=404, 
+    message="Not Found"
+)
+
+# The requested page does not exist or has been moved
+# Please check the URL or navigate back to the homepage
+                    </code>
+                </div>
+
+                <div class="terminal-line terminal-command-line">
+                    <div><span class="prompt">user@highlight-it:~$</span> <span class="command">suggest --alternatives</span></div>
+                </div>
+                <div class="terminal-output">
+                    <code class="highlight-it" data-language="javascript" data-theme="auto" data-no-header>
+// Suggested alternatives
+const suggestions = {
+    "demo": "/",
+    "latest": "/api/latest",
+};
+
+console.log("Suggested pages:");
+Object.entries(suggestions).forEach(([name, path]) => {
+    console.log(`- ${name.padEnd(12)} => ${path}`);
+});
+                    </code>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

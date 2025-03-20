@@ -1,0 +1,35 @@
+[package]
+name = "hit-demo"
+version = "0.1.0"
+edition = "2024"
+authors = ["TN3W"]
+description = "A demo of the highlight-it service. Automatically updates to the latest version."
+license = "Apache-2.0"
+repository = "https://github.com/TN3W/highlight-it-demo"
+keywords = ["highlight", "highlight-it", "demo"]
+categories = ["highlight", "highlight-it", "demo"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+panic = "abort"
+strip = true
+debug = 0
+overflow-checks = false
+incremental = false
+
+[profile.release.package."*"]
+codegen-units = 1
+opt-level = 3
+
+[dependencies]
+actix-web = "4.10.2"
+reqwest = { version = "0.12.15", features = ["json"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tokio = { version = "1.44.1", features = ["rt-multi-thread", "macros", "sync", "time"] }
+toml = "0.8.20"
+base64 = "0.22.1"
+sha2 = "0.10.8"
+regex = "1.11.1"
