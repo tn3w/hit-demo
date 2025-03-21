@@ -215,7 +215,12 @@
                 </div>
                 <div class="terminal-title">user@highlight-it: ~</div>
             </div>
+            
             <div class="terminal-body">
+                <div class="version-selector-container" style="margin-bottom: 20px; text-align: center; justify-content: center;">
+                    VERSION_SELECTOR
+                </div>
+            
                 <div class="ascii-art">
  _  _      ___    _  _   
 | || |    / _ \  | || |  
@@ -269,6 +274,7 @@ error = HTTPError(
 const suggestions = {
     "demo": "/",
     "latest": "/api/latest",
+    "versions": "/api/versions"
 };
 
 console.log("Suggested pages:");
