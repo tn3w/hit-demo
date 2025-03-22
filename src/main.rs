@@ -22,55 +22,6 @@ struct VersionsResponse {
     latest: VersionResponse,
 }
 
-// Handler for serving the index template
-#[get("/")]
-pub async fn serve_index(
-    version_checker: web::Data<VersionChecker>,
-    asset_manager: web::Data<AssetManager>,
-) -> impl Responder {
-    if let Some(content) = asset_manager.get_template("index.html").await {
-        let version_info = version_checker.get_current_version_info().await;
-        let version = version_info.version;
-        let sri_hash = version_info.sri_hash;
-
-        // Get all versions for displaying in the UI
-        let all_versions = version_checker.get_all_versions().await;
-
-        // Create a versions dropdown HTML
-        let mut versions_html = String::from(
-            "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
-        );
-        versions_html.push_str(&format!(
-            "  <option value=\"\">Latest ({})</option>\n",
-            version
-        ));
-
-        for v in all_versions {
-            if v.version != version {
-                versions_html.push_str(&format!(
-                    "  <option value=\"{}\">{}</option>\n",
-                    v.version, v.version
-                ));
-            }
-        }
-
-        versions_html.push_str("</select>");
-
-        // Insert versions_html where VERSION_SELECTOR appears in the template
-        let content = content
-            .replace("VERSION_SELECTOR", &versions_html)
-            .replace("VERSION", &version)
-            .replace("SRI_HASH", &sri_hash);
-
-        HttpResponse::Ok()
-            .content_type("text/html")
-            .append_header(("Cache-Control", "public, max-age=60"))
-            .body(content)
-    } else {
-        HttpResponse::NotFound().body("Template not found")
-    }
-}
-
 // Helper function to create consistent 404 responses
 async fn create_not_found_response(
     reason: &str,
@@ -136,31 +87,53 @@ pub async fn not_found_handler(
     .await
 }
 
-// Handler for serving static assets without version
-#[get("/static/{filename:.*}")]
-pub async fn serve_static(
-    path: web::Path<String>,
+// Handler for serving the index template
+#[get("/")]
+pub async fn serve_index(
+    version_checker: web::Data<VersionChecker>,
     asset_manager: web::Data<AssetManager>,
 ) -> impl Responder {
-    let filename = path.into_inner();
+    if let Some(content) = asset_manager.get_template("index.html").await {
+        let version_info = version_checker.get_current_version_info().await;
+        let version = version_info.version;
+        let sri_hash = version_info.sri_hash;
 
-    // Check if this is a request for a minified file
-    if filename.ends_with(".min.js") || filename.ends_with(".min.css") {
-        if let Some(asset) = asset_manager.get_asset(&filename).await {
-            // Set appropriate content type
-            let content_type = match asset.asset_type {
-                AssetType::JavaScript => "application/javascript",
-                AssetType::CSS => "text/css",
-            };
+        // Get all versions for displaying in the UI
+        let all_versions = version_checker.get_all_versions().await;
 
-            return HttpResponse::Ok()
-                .content_type(content_type)
-                .append_header(("Cache-Control", "public, max-age=60"))
-                .body(asset.content);
+        // Create a versions dropdown HTML
+        let mut versions_html = String::from(
+            "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
+        );
+        versions_html.push_str(&format!(
+            "  <option value=\"\">Latest ({})</option>\n",
+            version
+        ));
+
+        for v in all_versions {
+            if v.version != version {
+                versions_html.push_str(&format!(
+                    "  <option value=\"{}\">{}</option>\n",
+                    v.version, v.version
+                ));
+            }
         }
-    }
 
-    HttpResponse::NotFound().body("Asset not found")
+        versions_html.push_str("</select>");
+
+        // Insert versions_html where VERSION_SELECTOR appears in the template
+        let content = content
+            .replace("VERSION_SELECTOR", &versions_html)
+            .replace("VERSION", &version)
+            .replace("SRI_HASH", &sri_hash);
+
+        HttpResponse::Ok()
+            .content_type("text/html")
+            .append_header(("Cache-Control", "public, max-age=60"))
+            .body(content)
+    } else {
+        HttpResponse::NotFound().body("Template not found")
+    }
 }
 
 // Handler for specific version route
@@ -234,6 +207,33 @@ pub async fn serve_specific_version(
         // Version not found
         return create_not_found_response("Version not found", data, asset_manager).await;
     }
+}
+
+// Handler for serving static assets without version
+#[get("/static/{filename:.*}")]
+pub async fn serve_static(
+    path: web::Path<String>,
+    asset_manager: web::Data<AssetManager>,
+) -> impl Responder {
+    let filename = path.into_inner();
+
+    // Check if this is a request for a minified file
+    if filename.ends_with(".min.js") || filename.ends_with(".min.css") {
+        if let Some(asset) = asset_manager.get_asset(&filename).await {
+            // Set appropriate content type
+            let content_type = match asset.asset_type {
+                AssetType::JavaScript => "application/javascript",
+                AssetType::CSS => "text/css",
+            };
+
+            return HttpResponse::Ok()
+                .content_type(content_type)
+                .append_header(("Cache-Control", "public, max-age=60"))
+                .body(asset.content);
+        }
+    }
+
+    HttpResponse::NotFound().body("Asset not found")
 }
 
 // Handler for serving versioned static assets
@@ -528,13 +528,13 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(checker.clone()))
             .app_data(web::Data::new(asset_manager.clone()))
             .app_data(app_config.clone())
-            .service(get_latest_version)
-            .service(get_all_versions)
             .service(serve_index)
             .service(serve_sitemap)
-            .service(serve_specific_version)
+            .service(get_latest_version)
+            .service(get_all_versions)
             .service(serve_versioned_static)
             .service(serve_static)
+            .service(serve_specific_version)
             .default_service(web::route().to(not_found_handler))
     })
     .bind(config.server_addr())?
