@@ -84,16 +84,37 @@ pub async fn create_not_found_response(
     reason: &str,
     version_checker: web::Data<VersionChecker>,
     asset_manager: web::Data<AssetManager>,
+    path: Option<&str>,
 ) -> HttpResponse {
     if let Some(content) = asset_manager.get_template("404.html").await {
         let version_info = version_checker.get_latest_version_info().await;
         let version = version_info.version;
         let sri_hash = version_info.sri_hash;
 
+        let formatted_path = path.map_or(String::from("/unknown"), |p| {
+            let parts: Vec<&str> = p.split('/').filter(|s| !s.is_empty()).collect();
+
+            let limited_parts: Vec<&str> = parts.iter().take(3).cloned().collect();
+
+            let truncated_parts: Vec<String> = limited_parts
+                .iter()
+                .map(|part| {
+                    if part.len() > 9 {
+                        format!("{:.9}", part)
+                    } else {
+                        part.to_string()
+                    }
+                })
+                .collect();
+
+            format!("/{}", truncated_parts.join("/"))
+        });
+
         let content = content
             .replace("DEMO_VERSION", &get_hit_demo_version())
             .replace("VERSION", &version)
-            .replace("SRI_HASH", &sri_hash);
+            .replace("SRI_HASH", &sri_hash)
+            .replace("PATH", &formatted_path);
 
         HttpResponse::NotFound()
             .content_type("text/html")
@@ -114,6 +135,7 @@ pub async fn not_found_handler(
         &format!("Path not found: {}", path),
         version_checker,
         asset_manager,
+        Some(path),
     )
     .await
 }

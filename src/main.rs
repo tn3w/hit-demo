@@ -8,7 +8,10 @@ mod version_checker;
 use asset_manager::{AssetManager, AssetType};
 use config::{Config, load_config};
 use std::process::Command;
-use utils::{get_hit_demo_version, get_cdn_url, get_current_datetime, not_found_handler, create_not_found_response};
+use utils::{
+    create_not_found_response, get_cdn_url, get_current_datetime, get_hit_demo_version,
+    not_found_handler,
+};
 use version_checker::{VersionChecker, get_versions_selector, is_valid_version};
 
 #[derive(Serialize)]
@@ -49,7 +52,13 @@ async fn serve_index(
             .append_header(("Cache-Control", "public, max-age=60"))
             .body(content)
     } else {
-        create_not_found_response("Template not found", version_checker, asset_manager).await
+        create_not_found_response(
+            "Template not found",
+            version_checker,
+            asset_manager,
+            Some("/"),
+        )
+        .await
     }
 }
 
@@ -62,7 +71,13 @@ async fn serve_versioned_index(
     let version = path.into_inner();
 
     if !is_valid_version(&version) {
-        return create_not_found_response("Invalid version", data, asset_manager).await;
+        return create_not_found_response(
+            "Invalid version",
+            data,
+            asset_manager,
+            Some(&format!("/{}", version)),
+        )
+        .await;
     }
 
     let all_versions = data.get_all_versions().await;
@@ -89,7 +104,13 @@ async fn serve_versioned_index(
             return HttpResponse::InternalServerError().body("Template not found");
         }
     } else {
-        return create_not_found_response("Version not found", data, asset_manager).await;
+        return create_not_found_response(
+            "Version not found",
+            data,
+            asset_manager,
+            Some(&format!("/{}", version)),
+        )
+        .await;
     }
 }
 
@@ -115,7 +136,13 @@ async fn serve_static(
         }
     }
 
-    create_not_found_response("Asset not found", version_checker, asset_manager).await
+    create_not_found_response(
+        "Asset not found",
+        version_checker,
+        asset_manager,
+        Some(&format!("/static/{}", filename)),
+    )
+    .await
 }
 
 #[get("/static/{version}/{filename:.*}")]
@@ -127,15 +154,26 @@ async fn serve_versioned_static(
     let (version, filename) = path.into_inner();
 
     if !is_valid_version(&version) {
-        return create_not_found_response("Invalid version", version_checker, asset_manager).await;
+        return create_not_found_response(
+            "Invalid version",
+            version_checker,
+            asset_manager,
+            Some(&format!("/static/{}/{}", version, filename)),
+        )
+        .await;
     }
 
     let all_versions = version_checker.get_all_versions().await;
     let version_exists = all_versions.iter().any(|v| v.version == version);
 
     if !version_exists {
-        return create_not_found_response("Version not found", version_checker, asset_manager)
-            .await;
+        return create_not_found_response(
+            "Version not found",
+            version_checker,
+            asset_manager,
+            Some(&format!("/static/{}/{}", version, filename)),
+        )
+        .await;
     }
 
     if let Some(asset) = asset_manager.get_asset(&filename).await {
@@ -152,7 +190,13 @@ async fn serve_versioned_static(
             .body(content);
     }
 
-    create_not_found_response("Asset not found", version_checker, asset_manager).await
+    create_not_found_response(
+        "Asset not found",
+        version_checker,
+        asset_manager,
+        Some(&format!("/static/{}/{}", version, filename)),
+    )
+    .await
 }
 
 #[get("/api/latest")]
