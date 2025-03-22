@@ -8,7 +8,7 @@ mod version_checker;
 use asset_manager::{AssetManager, AssetType};
 use config::{Config, load_config};
 use std::process::Command;
-use utils::{create_not_found_response, get_cdn_url, get_current_datetime, not_found_handler};
+use utils::{get_hit_demo_version, get_cdn_url, get_current_datetime, not_found_handler, create_not_found_response};
 use version_checker::{VersionChecker, get_versions_selector, is_valid_version};
 
 #[derive(Serialize)]
@@ -39,6 +39,7 @@ async fn serve_index(
         let versions_html = get_versions_selector(all_versions, version.clone(), None);
 
         let content = content
+            .replace("DEMO_VERSION", &get_hit_demo_version())
             .replace("VERSION_SELECTOR", &versions_html)
             .replace("VERSION", &version)
             .replace("SRI_HASH", &sri_hash);
@@ -75,6 +76,7 @@ async fn serve_versioned_index(
                 get_versions_selector(all_versions.clone(), latest_version, Some(version.clone()));
 
             let content = content
+                .replace("DEMO_VERSION", &get_hit_demo_version())
                 .replace("VERSION_SELECTOR", &versions_html)
                 .replace("VERSION", &version_info.version)
                 .replace("SRI_HASH", &version_info.sri_hash);
@@ -310,11 +312,11 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(asset_manager.clone()))
             .app_data(app_config.clone())
             .service(serve_index)
-            .service(serve_static)
             .service(serve_sitemap)
             .service(serve_latest_version_api)
             .service(serve_all_versions_api)
             .service(serve_versioned_static)
+            .service(serve_static)
             .service(serve_versioned_index)
             .default_service(web::route().to(not_found_handler))
     })

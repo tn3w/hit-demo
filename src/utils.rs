@@ -1,6 +1,10 @@
 use crate::asset_manager::AssetManager;
-use crate::version_checker::{VersionChecker, get_versions_selector};
+use crate::version_checker::VersionChecker;
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
+
+pub fn get_hit_demo_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
 
 pub fn get_cdn_url(version: &str) -> String {
     format!(
@@ -86,11 +90,8 @@ pub async fn create_not_found_response(
         let version = version_info.version;
         let sri_hash = version_info.sri_hash;
 
-        let all_versions = version_checker.get_all_versions().await;
-        let versions_html = get_versions_selector(all_versions, version.clone(), None);
-
         let content = content
-            .replace("VERSION_SELECTOR", &versions_html)
+            .replace("DEMO_VERSION", &get_hit_demo_version())
             .replace("VERSION", &version)
             .replace("SRI_HASH", &sri_hash);
 
