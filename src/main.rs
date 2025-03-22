@@ -1,4 +1,4 @@
-use actix_web::{get, middleware, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, middleware, web};
 use serde::Serialize;
 mod asset_manager;
 mod config;
@@ -6,8 +6,8 @@ mod version_checker;
 
 use asset_manager::{AssetManager, AssetType};
 use config::{Config, load_config};
-use version_checker::{VersionChecker, is_valid_version};
 use std::process::Command;
+use version_checker::{VersionChecker, is_valid_version};
 
 #[derive(Serialize)]
 struct VersionResponse {
@@ -77,9 +77,6 @@ async fn create_not_found_response(
     version_checker: web::Data<VersionChecker>,
     asset_manager: web::Data<AssetManager>,
 ) -> HttpResponse {
-    // Log the reason for the 404
-    println!("404 Not Found: {}", reason);
-    
     // Use the same logic as the not_found_handler
     if let Some(content) = asset_manager.get_template("404.html").await {
         let version_info = version_checker.get_latest_version_info().await;
@@ -131,7 +128,12 @@ pub async fn not_found_handler(
 ) -> impl Responder {
     // Extract the path to use as reason
     let path = req.path();
-    create_not_found_response(&format!("Path not found: {}", path), version_checker, asset_manager).await
+    create_not_found_response(
+        &format!("Path not found: {}", path),
+        version_checker,
+        asset_manager,
+    )
+    .await
 }
 
 // Handler for serving static assets without version
@@ -185,25 +187,29 @@ pub async fn serve_specific_version(
             // Get the latest version for the dropdown
             let latest_version_info = data.get_current_version_info().await;
             let latest_version = latest_version_info.version.clone();
-                
+
             // Create a versions dropdown HTML
             let mut versions_html = String::from(
                 "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
             );
-            
+
             // Add the Latest version option
             versions_html.push_str(&format!(
-                "  <option value=\"\">Latest ({})</option>\n", 
+                "  <option value=\"\">Latest ({})</option>\n",
                 latest_version
             ));
-            
+
             // Add all versions with the current one selected
             for v in &all_versions {
                 if v.version == latest_version && version != latest_version {
                     continue;
                 }
-                
-                let selected = if v.version == version { " selected" } else { "" };
+
+                let selected = if v.version == version {
+                    " selected"
+                } else {
+                    ""
+                };
                 versions_html.push_str(&format!(
                     "  <option value=\"{}\"{}>{}</option>\n",
                     v.version, selected, v.version
@@ -249,7 +255,8 @@ pub async fn serve_versioned_static(
     let version_exists = all_versions.iter().any(|v| v.version == version);
 
     if !version_exists {
-        return create_not_found_response("Version not found", version_checker, asset_manager).await;
+        return create_not_found_response("Version not found", version_checker, asset_manager)
+            .await;
     }
 
     if let Some(asset) = asset_manager.get_asset(&filename).await {
@@ -452,20 +459,18 @@ pub async fn serve_sitemap(
 async fn main() -> std::io::Result<()> {
     // Run the build script to minify CSS and JS
     println!("Running build script to minify assets...");
-    match Command::new("node")
-        .arg("build.js")
-        .status() {
-            Ok(status) => {
-                if !status.success() {
-                    eprintln!("Warning: Build script failed with exit code: {}", status);
-                } else {
-                    println!("Build script completed successfully");
-                }
-            },
-            Err(e) => {
-                eprintln!("Warning: Failed to run build script: {}", e);
+    match Command::new("node").arg("build.js").status() {
+        Ok(status) => {
+            if !status.success() {
+                eprintln!("Warning: Build script failed with exit code: {}", status);
+            } else {
+                println!("Build script completed successfully");
             }
         }
+        Err(e) => {
+            eprintln!("Warning: Failed to run build script: {}", e);
+        }
+    }
 
     // Load configuration
     let config = load_config().unwrap_or_else(|e| {

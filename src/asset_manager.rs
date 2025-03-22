@@ -113,8 +113,6 @@ impl AssetManager {
 
                     // Store template in memory
                     templates.insert(filename.to_string(), content);
-
-                    println!("Loaded template: {}", filename);
                 }
             }
         }
