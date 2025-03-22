@@ -15,6 +15,8 @@ pub struct Config {
     pub http_timeout: u64,
     /// Version check interval in seconds
     pub version_check_interval: u64,
+    /// Cache directory for version information
+    pub cache_dir: Option<String>,
 }
 
 impl Default for Config {
@@ -25,6 +27,7 @@ impl Default for Config {
             workers: 4,
             http_timeout: 3,
             version_check_interval: 1800,
+            cache_dir: Some("./".to_string()),
         }
     }
 }

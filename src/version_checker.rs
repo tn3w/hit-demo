@@ -5,6 +5,9 @@ use reqwest::header::{CACHE_CONTROL, EXPIRES, PRAGMA};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha512};
+use std::fs;
+use std::io;
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
@@ -16,6 +19,7 @@ const NO_CACHE_HEADERS: [(reqwest::header::HeaderName, &str); 3] = [
 ];
 
 const VERSION_REGEX: &str = r"^[0-9]\.[0-9]{1,2}\.[0-9]{1,2}$";
+const CACHE_FILE_NAME: &str = "version_cache.json";
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct VersionInfo {
@@ -31,6 +35,7 @@ pub struct VersionChecker {
     latest_version: Arc<RwLock<VersionInfo>>,
     http_timeout_secs: u64,
     version_check_interval_secs: u64,
+    cache_file_path: String,
 }
 
 impl VersionChecker {
@@ -38,6 +43,7 @@ impl VersionChecker {
         package_name: &str,
         http_timeout_secs: u64,
         version_check_interval_secs: u64,
+        cache_dir: Option<&str>,
     ) -> Self {
         let mut headers = reqwest::header::HeaderMap::new();
         for (key, value) in NO_CACHE_HEADERS.iter() {
@@ -54,6 +60,11 @@ impl VersionChecker {
             .build()
             .expect("Failed to create HTTP client");
 
+        let cache_file_path = match cache_dir {
+            Some(dir) => format!("{}/{}-{}", dir, package_name, CACHE_FILE_NAME),
+            None => format!("{}-{}", package_name, CACHE_FILE_NAME),
+        };
+
         Self {
             client,
             package_name: package_name.to_string(),
@@ -68,7 +79,55 @@ impl VersionChecker {
             })),
             http_timeout_secs,
             version_check_interval_secs,
+            cache_file_path,
         }
+    }
+
+    async fn load_cache(&self) -> Vec<VersionInfo> {
+        let path = Path::new(&self.cache_file_path);
+        if !path.exists() {
+            return Vec::new();
+        }
+
+        match fs::read_to_string(path) {
+            Ok(content) => match serde_json::from_str::<Vec<VersionInfo>>(&content) {
+                Ok(versions) => {
+                    #[cfg(debug_assertions)]
+                    println!("Debug: Loaded {} versions from cache", versions.len());
+                    versions
+                }
+                #[cfg(debug_assertions)]
+                Err(e) => {
+                    println!("Debug: Failed to parse cache file: {}", e);
+                    Vec::new()
+                }
+                #[cfg(not(debug_assertions))]
+                Err(_) => Vec::new(),
+            },
+            #[cfg(debug_assertions)]
+            Err(e) => {
+                println!("Debug: Failed to read cache file: {}", e);
+                Vec::new()
+            }
+            #[cfg(not(debug_assertions))]
+            Err(_) => Vec::new(),
+        }
+    }
+
+    async fn save_cache(&self, versions: &[VersionInfo]) -> io::Result<()> {
+        if let Some(parent) = Path::new(&self.cache_file_path).parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)?;
+            }
+        }
+
+        let json = serde_json::to_string_pretty(versions)?;
+        fs::write(&self.cache_file_path, json)?;
+
+        #[cfg(debug_assertions)]
+        println!("Debug: Saved {} versions to cache", versions.len());
+
+        Ok(())
     }
 
     async fn check_all_versions(
@@ -164,58 +223,93 @@ impl VersionChecker {
     }
 
     pub async fn start_checking(&self) {
+        let cached_versions = self.load_cache().await;
+
+        if !cached_versions.is_empty() {
+            let latest_version = cached_versions
+                .first()
+                .cloned()
+                .unwrap_or_else(|| VersionInfo {
+                    version: String::new(),
+                    sri_hash: String::new(),
+                });
+
+            {
+                let mut all = self.all_versions.write().await;
+                *all = cached_versions.clone();
+
+                let mut current = self.current_version_info.write().await;
+                *current = latest_version.clone();
+
+                let mut latest = self.latest_version.write().await;
+                *latest = latest_version;
+
+                #[cfg(debug_assertions)]
+                println!("Debug: Initialized from cache with {} versions", all.len());
+            }
+        }
+
         let all_versions = Arc::clone(&self.all_versions);
         let latest_version = Arc::clone(&self.latest_version);
         let version_info = Arc::clone(&self.current_version_info);
         let checker = self.clone();
 
-        if let Ok(versions) = checker.check_all_versions().await {
-            let mut stored_versions = Vec::new();
+        if cached_versions.clone().is_empty() {
+            if let Ok(versions) = checker.check_all_versions().await {
+                let mut stored_versions = Vec::new();
 
-            if let Some(latest_version_str) = versions.first() {
-                if let Ok(sri_hash) = checker.calculate_sri_hash(latest_version_str).await {
-                    let latest_version_info = VersionInfo {
-                        version: latest_version_str.clone(),
-                        sri_hash: sri_hash.clone(),
-                    };
+                if let Some(latest_version_str) = versions.first() {
+                    if let Ok(sri_hash) = checker.calculate_sri_hash(latest_version_str).await {
+                        let latest_version_info = VersionInfo {
+                            version: latest_version_str.clone(),
+                            sri_hash: sri_hash.clone(),
+                        };
 
-                    let mut current = version_info.write().await;
-                    current.version = latest_version_str.clone();
-                    current.sri_hash = sri_hash.clone();
+                        let mut current = version_info.write().await;
+                        current.version = latest_version_str.clone();
+                        current.sri_hash = sri_hash.clone();
 
-                    let mut latest = latest_version.write().await;
-                    *latest = latest_version_info.clone();
+                        let mut latest = latest_version.write().await;
+                        *latest = latest_version_info.clone();
 
-                    #[cfg(debug_assertions)]
-                    println!(
-                        "Debug: Initial version set to {} with hash {}",
-                        latest_version_str, sri_hash
-                    );
+                        #[cfg(debug_assertions)]
+                        println!(
+                            "Debug: Initial version set to {} with hash {}",
+                            latest_version_str, sri_hash
+                        );
 
-                    stored_versions.push(latest_version_info);
-                } else {
-                    #[cfg(debug_assertions)]
-                    println!(
-                        "Debug: Failed to calculate SRI hash for version {}",
-                        latest_version_str
-                    );
+                        stored_versions.push(latest_version_info);
+                    } else {
+                        #[cfg(debug_assertions)]
+                        println!(
+                            "Debug: Failed to calculate SRI hash for version {}",
+                            latest_version_str
+                        );
+                    }
                 }
-            }
 
-            for version_str in versions.iter().skip(1).take(9) {
-                if let Ok(sri_hash) = checker.calculate_sri_hash(version_str).await {
-                    stored_versions.push(VersionInfo {
-                        version: version_str.clone(),
-                        sri_hash,
-                    });
+                for version_str in versions.iter().skip(1).take(9) {
+                    if let Ok(sri_hash) = checker.calculate_sri_hash(version_str).await {
+                        stored_versions.push(VersionInfo {
+                            version: version_str.clone(),
+                            sri_hash,
+                        });
+                    }
                 }
-            }
 
-            let mut all = all_versions.write().await;
-            *all = stored_versions;
-        } else {
-            #[cfg(debug_assertions)]
-            println!("Debug: Failed to get initial versions");
+                let mut all = all_versions.write().await;
+                *all = stored_versions.clone();
+
+                #[cfg(debug_assertions)]
+                if let Err(e) = checker.save_cache(&stored_versions).await {
+                    println!("Debug: Failed to save cache: {}", e);
+                }
+                #[cfg(not(debug_assertions))]
+                let _ = checker.save_cache(&stored_versions).await;
+            } else {
+                #[cfg(debug_assertions)]
+                println!("Debug: Failed to get initial versions");
+            }
         }
 
         tokio::spawn(async move {
@@ -249,6 +343,13 @@ impl VersionChecker {
                                     let mut all = all_versions.write().await;
                                     if !all.iter().any(|v| v.version == new_version_str.clone()) {
                                         all.insert(0, new_version_info);
+
+                                        #[cfg(debug_assertions)]
+                                        if let Err(e) = checker.save_cache(&all).await {
+                                            println!("Debug: Failed to save cache: {}", e);
+                                        }
+                                        #[cfg(not(debug_assertions))]
+                                        let _ = checker.save_cache(&all).await;
                                     }
 
                                     #[cfg(debug_assertions)]
@@ -265,7 +366,7 @@ impl VersionChecker {
                                 }
                             }
 
-                            let mut need_update = false;
+                            let mut new_versions_to_process = Vec::new();
                             {
                                 let all = all_versions.read().await;
                                 let existing_versions: Vec<String> =
@@ -273,35 +374,31 @@ impl VersionChecker {
 
                                 for version_str in versions.iter().take(10) {
                                     if !existing_versions.contains(version_str) {
-                                        need_update = true;
-                                        break;
+                                        new_versions_to_process.push(version_str.clone());
                                     }
                                 }
                             }
 
-                            if need_update {
-                                let mut processed_versions = Vec::new();
+                            if !new_versions_to_process.is_empty() {
+                                let mut all = all_versions.write().await;
+                                let mut cache_updated = false;
 
-                                {
-                                    let all = all_versions.read().await;
-                                    processed_versions.extend(all.iter().cloned());
-                                }
-
-                                for version_str in versions.iter().take(10) {
-                                    if !processed_versions.iter().any(|v| &v.version == version_str)
-                                    {
+                                for version_str in new_versions_to_process {
+                                    if !all.iter().any(|v| v.version == version_str) {
                                         if let Ok(sri_hash) =
-                                            checker.calculate_sri_hash(version_str).await
+                                            checker.calculate_sri_hash(&version_str).await
                                         {
-                                            processed_versions.push(VersionInfo {
+                                            let version_info = VersionInfo {
                                                 version: version_str.clone(),
                                                 sri_hash,
-                                            });
+                                            };
+                                            all.push(version_info);
+                                            cache_updated = true;
                                         }
                                     }
                                 }
 
-                                processed_versions.sort_by(|a, b| {
+                                all.sort_by(|a, b| {
                                     let parse_version = |v: &str| -> (u32, u32, u32) {
                                         let parts: Vec<&str> = v.split('.').collect();
                                         if parts.len() == 3 {
@@ -320,8 +417,14 @@ impl VersionChecker {
                                     b_ver.cmp(&a_ver)
                                 });
 
-                                let mut all = all_versions.write().await;
-                                *all = processed_versions;
+                                if cache_updated {
+                                    #[cfg(debug_assertions)]
+                                    if let Err(e) = checker.save_cache(&all).await {
+                                        println!("Debug: Failed to save cache: {}", e);
+                                    }
+                                    #[cfg(not(debug_assertions))]
+                                    let _ = checker.save_cache(&all).await;
+                                }
                             }
                         }
                     }
@@ -359,6 +462,7 @@ impl Clone for VersionChecker {
             latest_version: Arc::clone(&self.latest_version),
             http_timeout_secs: self.http_timeout_secs,
             version_check_interval_secs: self.version_check_interval_secs,
+            cache_file_path: self.cache_file_path.clone(),
         }
     }
 }

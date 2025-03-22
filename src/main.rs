@@ -272,6 +272,7 @@ async fn main() -> std::io::Result<()> {
         "highlight-it",
         config.http_timeout,
         config.version_check_interval,
+        config.cache_dir.as_deref(),
     );
     checker.start_checking().await;
 

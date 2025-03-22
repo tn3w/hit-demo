@@ -26,5 +26,8 @@ config.toml
 *.min.css
 *.min.js
 
+# Version cache
+*-version_cache.json
+
 # Node modules
 node_modules/
