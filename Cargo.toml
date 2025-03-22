@@ -1,7 +1,7 @@
 [package]
 name = "hit-demo"
-version = "0.2.0"
-edition = "2024"
+version = "0.3.0"
+edition = "2021"
 authors = ["TN3W"]
 description = "A demo of the highlight-it service. Automatically updates to the latest version."
 license = "Apache-2.0"
