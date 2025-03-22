@@ -1,0 +1,23 @@
+[Unit]
+Description=Highlight-It Demo Server
+After=network.target
+
+[Service]
+Type=simple
+User=hit-demo
+Group=hit-demo
+WorkingDirectory=/var/lib/hit-demo
+ExecStart=/usr/local/bin/hit-demo
+Restart=on-failure
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=hit-demo
+
+# Security measures
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target 
