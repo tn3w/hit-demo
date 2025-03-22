@@ -40,13 +40,18 @@ pub async fn serve_index(
         let mut versions_html = String::from(
             "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
         );
-        versions_html.push_str("  <option value=\"\" selected>Current Version</option>\n");
+        versions_html.push_str(&format!(
+            "  <option value=\"\">Latest ({})</option>\n",
+            version
+        ));
 
         for v in all_versions {
-            versions_html.push_str(&format!(
-                "  <option value=\"{}\">{}</option>\n",
-                v.version, v.version
-            ));
+            if v.version != version {
+                versions_html.push_str(&format!(
+                    "  <option value=\"{}\">{}</option>\n",
+                    v.version, v.version
+                ));
+            }
         }
 
         versions_html.push_str("</select>");
@@ -88,13 +93,18 @@ async fn create_not_found_response(
         let mut versions_html = String::from(
             "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
         );
-        versions_html.push_str("  <option value=\"\" selected>Current Version</option>\n");
+        versions_html.push_str(&format!(
+            "  <option value=\"\">Latest ({})</option>\n",
+            version
+        ));
 
         for v in all_versions {
-            versions_html.push_str(&format!(
-                "  <option value=\"{}\">{}</option>\n",
-                v.version, v.version
-            ));
+            if v.version != version {
+                versions_html.push_str(&format!(
+                    "  <option value=\"{}\">{}</option>\n",
+                    v.version, v.version
+                ));
+            }
         }
 
         versions_html.push_str("</select>");
@@ -172,18 +182,28 @@ pub async fn serve_specific_version(
     if let Some(version_info) = all_versions.iter().find(|v| v.version == version) {
         // Version found, serve the template with this version
         if let Some(content) = asset_manager.get_template("index.html").await {
+            // Get the latest version for the dropdown
+            let latest_version_info = data.get_current_version_info().await;
+            let latest_version = latest_version_info.version.clone();
+                
             // Create a versions dropdown HTML
             let mut versions_html = String::from(
                 "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
             );
-            versions_html.push_str("  <option value=\"\" selected>Current Version</option>\n");
-
+            
+            // Add the Latest version option
+            versions_html.push_str(&format!(
+                "  <option value=\"\">Latest ({})</option>\n", 
+                latest_version
+            ));
+            
+            // Add all versions with the current one selected
             for v in &all_versions {
-                let selected = if v.version == version_info.version {
-                    " selected"
-                } else {
-                    ""
-                };
+                if v.version == latest_version && version != latest_version {
+                    continue;
+                }
+                
+                let selected = if v.version == version { " selected" } else { "" };
                 versions_html.push_str(&format!(
                     "  <option value=\"{}\"{}>{}</option>\n",
                     v.version, selected, v.version
