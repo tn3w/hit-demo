@@ -156,23 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTheme = 'auto';
         }
         
-        let htmlCode = '';
+        let styleLink = ``
         
         if (styleName !== 'default') {
-            htmlCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight-it@VERSION/dist/styles/${styleName}.min.css">\n`;
+            styleLink = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight-it@VERSION/dist/styles/${styleName}.min.css">\n`;
         }
-        
-        htmlCode += '<script src="https://cdn.jsdelivr.net/npm/highlight-it@VERSION/dist/highlight-it-min.js"><\/script>\n';
-        
-        htmlCode += '<script>\n';
-        htmlCode += '  window.addEventListener(\'load\', () => {\n';
-        htmlCode += `    HighlightIt.init({\n      theme: '${currentTheme}',\n      // Your other options here\n      debounceTime: 40\n    });\n`;
-        htmlCode += '  });\n';
-        htmlCode += '<\/script>\n\n';
-        
-        htmlCode += '<pre class="highlight-it" data-language="javascript">\n';
-        htmlCode += '  // Your code will be automatically highlighted\n';
-        htmlCode += '<\/pre>';
+
+        let htmlCode = `${styleLink}<script src="https://cdn.jsdelivr.net/npm/highlight-it@VERSION/dist/highlight-it-min.js"><\/script>
+<script>
+    window.addEventListener('load', () => {
+        HighlightIt.init({
+            theme: '${currentTheme}',
+            // Your other options here
+            debounceTime: 40
+        });
+    });
+</script>
+
+<pre class="highlight-it" data-language="javascript">
+    // Your code will be automatically highlighted
+</pre>`;
         
         importCodeDisplay.textContent = htmlCode;
     }
@@ -434,7 +437,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
         
         dynamicContainer.appendChild(preElement);
         
-        const highlightedElement = HighlightIt.highlight(preElement, {
+        HighlightIt.highlight(preElement, {
             language: snippet.language,
             withLines: true,
             withReload: true,

@@ -25,3 +25,6 @@ config.toml
 # Minified JS and CSS files
 *.min.css
 *.min.js
+
+# Node modules
+node_modules/

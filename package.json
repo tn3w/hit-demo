@@ -1,0 +1,17 @@
+{
+  "name": "highlight-it-demo",
+  "version": "1.0.0",
+  "description": "Highlight It Demo Site",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.1",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "lightningcss": "^1.22.0",
+    "terser": "^5.27.2"
+  },
+  "type": "module"
+}

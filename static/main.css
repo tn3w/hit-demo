@@ -298,7 +298,6 @@ p {
 
 code {
   font-family: "Roboto Mono", "Courier New", monospace;
-  padding: 0.2em 0.4em;
   border-radius: 3px;
   font-size: 0.9em;
   color: var(--accent-color);
@@ -698,7 +697,6 @@ hr {
   }
 }
 
-/* Add styles for the version selector */
 .version-selector-container {
   display: flex;
   align-items: center;

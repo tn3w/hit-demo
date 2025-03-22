@@ -61,12 +61,12 @@ impl AssetManager {
                             std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid filename")
                         })?;
 
-                // Only process .js and .css files
-                if filename.ends_with(".js") || filename.ends_with(".css") {
+                // Only process .min.js and .min.css files
+                if filename.ends_with(".min.js") || filename.ends_with(".min.css") {
                     let content = fs::read_to_string(&path)?;
 
                     // Determine asset type based on file extension
-                    let asset_type = if filename.ends_with(".js") {
+                    let asset_type = if filename.ends_with(".min.js") {
                         AssetType::JavaScript
                     } else {
                         AssetType::CSS
@@ -79,18 +79,6 @@ impl AssetManager {
                             content,
                             asset_type,
                         },
-                    );
-
-                    // Also store a reference for the minified version (client might request .min.js/.min.css)
-                    let min_filename = if filename.ends_with(".js") {
-                        filename.replace(".js", ".min.js")
-                    } else {
-                        filename.replace(".css", ".min.css")
-                    };
-
-                    println!(
-                        "Loaded static asset: {} (also available as {})",
-                        filename, min_filename
                     );
                 }
             }
@@ -141,15 +129,6 @@ impl AssetManager {
         // Check if we have a direct match
         if let Some(asset) = assets.get(filename) {
             return Some(asset.clone());
-        }
-
-        // If requesting a minified version, check for the original
-        if filename.ends_with(".min.js") || filename.ends_with(".min.css") {
-            let original_filename = filename
-                .replace(".min.js", ".js")
-                .replace(".min.css", ".css");
-
-            return assets.get(&original_filename).cloned();
         }
 
         None

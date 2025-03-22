@@ -7,6 +7,7 @@ mod version_checker;
 use asset_manager::{AssetManager, AssetType};
 use config::{Config, load_config};
 use version_checker::{VersionChecker, is_valid_version};
+use std::process::Command;
 
 #[derive(Serialize)]
 struct VersionResponse {
@@ -133,12 +134,7 @@ pub async fn serve_static(
 
     // Check if this is a request for a minified file
     if filename.ends_with(".min.js") || filename.ends_with(".min.css") {
-        // Extract the original filename
-        let original_filename = filename
-            .replace(".min.js", ".js")
-            .replace(".min.css", ".css");
-
-        if let Some(asset) = asset_manager.get_asset(&original_filename).await {
+        if let Some(asset) = asset_manager.get_asset(&filename).await {
             // Set appropriate content type
             let content_type = match asset.asset_type {
                 AssetType::JavaScript => "application/javascript",
@@ -236,14 +232,7 @@ pub async fn serve_versioned_static(
         return create_not_found_response("Version not found", version_checker, asset_manager).await;
     }
 
-    // Serve the asset as in the non-versioned handler
-    let original_filename = filename
-        .replace(".min.js", ".js")
-        .replace(".min.css", ".css");
-
-    println!("Serving versioned static asset: {}", original_filename);
-
-    if let Some(asset) = asset_manager.get_asset(&original_filename).await {
+    if let Some(asset) = asset_manager.get_asset(&filename).await {
         // Set appropriate content type
         let content_type = match asset.asset_type {
             AssetType::JavaScript => "application/javascript",
@@ -441,6 +430,23 @@ pub async fn serve_sitemap(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Run the build script to minify CSS and JS
+    println!("Running build script to minify assets...");
+    match Command::new("node")
+        .arg("build.js")
+        .status() {
+            Ok(status) => {
+                if !status.success() {
+                    eprintln!("Warning: Build script failed with exit code: {}", status);
+                } else {
+                    println!("Build script completed successfully");
+                }
+            },
+            Err(e) => {
+                eprintln!("Warning: Failed to run build script: {}", e);
+            }
+        }
+
     // Load configuration
     let config = load_config().unwrap_or_else(|e| {
         eprintln!("Error loading configuration: {}", e);
