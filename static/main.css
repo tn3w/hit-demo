@@ -720,26 +720,41 @@ hr {
 }
 
 .version-selector-container {
+  margin-top: 10px;
+  margin-bottom: 25px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
 }
 
 .version-selector-container label {
-  font-size: 0.9rem;
+  font-size: 15px;
   color: var(--text-color);
+  margin-bottom: 0;
 }
 
 #version-selector {
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 10px 16px;
   border: 1px solid var(--border-color);
+  border-radius: 6px;
   background-color: var(--card-bg);
   color: var(--text-color);
-  font-size: 0.9rem;
+  font-size: 15px;
+  min-width: 220px;
   cursor: pointer;
-  min-width: 120px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4d4d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
+  transition: all 0.2s ease;
+}
+
+.highlightit-theme-light #version-selector,
+:root.highlightit-theme-light #version-selector,
+:root.highlightit-theme-auto.system-light-theme #version-selector {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 #version-selector:hover {
@@ -749,7 +764,14 @@ hr {
 #version-selector:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+}
+
+#version-selector option {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 8px;
+  font-size: 15px;
 }
 
 .header-actions {

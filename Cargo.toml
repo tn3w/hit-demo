@@ -1,11 +1,11 @@
 [package]
 name = "hit-demo"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["TN3W"]
 description = "A demo of the highlight-it service. Automatically updates to the latest version."
 license = "Apache-2.0"
-repository = "https://github.com/TN3W/highlight-it-demo"
+repository = "https://github.com/TN3W/hit-demo"
 keywords = ["highlight", "highlight-it", "demo"]
 categories = ["highlight", "highlight-it", "demo"]
 

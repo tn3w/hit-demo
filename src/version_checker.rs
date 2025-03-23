@@ -531,7 +531,7 @@ pub fn get_versions_selector(
     selected_version: Option<String>,
 ) -> String {
     let mut versions_html = String::from(
-        "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value;\">\n",
+        "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value; document.getElementById('current-version-display').textContent = this.options[this.selectedIndex].text;\">\n",
     );
 
     let latest_selected = selected_version.is_none()
@@ -546,7 +546,7 @@ pub fn get_versions_selector(
     ));
 
     for v in all_versions {
-        if v.version == latest_version && latest_selected {
+        if v.version == latest_version {
             continue;
         }
 
