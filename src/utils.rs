@@ -86,7 +86,7 @@ pub async fn create_not_found_response(
     asset_manager: web::Data<AssetManager>,
     path: Option<&str>,
 ) -> HttpResponse {
-    if let Some(content) = asset_manager.get_template("404.html").await {
+    if let Some(content) = asset_manager.get_template("404.min.html").await {
         let version_info = version_checker.get_latest_version_info().await;
         let version = version_info.version;
         let sri_hash = version_info.sri_hash;

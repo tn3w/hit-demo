@@ -531,7 +531,7 @@ pub fn get_versions_selector(
     selected_version: Option<String>,
 ) -> String {
     let mut versions_html = String::from(
-        "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value; document.getElementById('current-version-display').textContent = this.options[this.selectedIndex].text;\">\n",
+        "<select id=\"version-selector\" onchange=\"window.location.href='/' + this.value; document.getElementById('current-version-display').textContent = this.options[this.selectedIndex].text;\">",
     );
 
     let latest_selected = selected_version.is_none()
@@ -541,7 +541,7 @@ pub fn get_versions_selector(
     let latest_selected_attr = if latest_selected { " selected" } else { "" };
 
     versions_html.push_str(&format!(
-        "  <option value=\"\"{}>Latest ({})</option>\n",
+        "<option value=\"\"{}>Latest ({})</option>",
         latest_selected_attr, latest_version
     ));
 
@@ -556,7 +556,7 @@ pub fn get_versions_selector(
         };
 
         versions_html.push_str(&format!(
-            "  <option value=\"{}\"{}>{}</option>\n",
+            "<option value=\"{}\"{}>{}</option>",
             v.version, selected, v.version
         ));
     }

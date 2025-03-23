@@ -32,7 +32,7 @@ async fn serve_index(
     version_checker: web::Data<VersionChecker>,
     asset_manager: web::Data<AssetManager>,
 ) -> impl Responder {
-    if let Some(content) = asset_manager.get_template("index.html").await {
+    if let Some(content) = asset_manager.get_template("index.min.html").await {
         let version_info = version_checker.get_current_version_info().await;
         let version = version_info.version;
         let sri_hash = version_info.sri_hash;
@@ -83,7 +83,7 @@ async fn serve_versioned_index(
     let all_versions = data.get_all_versions().await;
 
     if let Some(version_info) = all_versions.iter().find(|v| v.version == version) {
-        if let Some(content) = asset_manager.get_template("index.html").await {
+        if let Some(content) = asset_manager.get_template("index.min.html").await {
             let latest_version_info = data.get_current_version_info().await;
             let latest_version = latest_version_info.version.clone();
 

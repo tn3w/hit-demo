@@ -4,12 +4,14 @@
   "description": "Highlight It Demo Site",
   "main": "build.js",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "format": "prettier --config .prettierrc --parser babel --write . !'templates/**' !'src/**' !'static/**"
   },
   "dependencies": {
     "esbuild": "^0.25.1",
     "fs-extra": "^11.2.0",
     "glob": "^10.3.10",
+    "html-minifier-terser": "^7.2.0",
     "lightningcss": "^1.22.0",
     "terser": "^5.27.2"
   },

@@ -22,9 +22,10 @@ Cargo.lock
 # Configuration file
 config.toml
 
-# Minified JS and CSS files
+# Minified JS, CSS, and HTML files
 *.min.css
 *.min.js
+*.min.html
 
 # Version cache
 *-version_cache.json
