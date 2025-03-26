@@ -76,18 +76,19 @@
             <li><a href="#demo-4">No Header Mode</a></li>
             <li><a href="#demo-5">Per-Element Theme</a></li>
             <li><a href="#demo-6">Line Numbers</a></li>
-            <li><a href="#demo-7">No Copy Button</a></li>
-            <li><a href="#demo-8">Combined Attributes</a></li>
+            <li><a href="#demo-7">Custom Line Numbering</a></li>
+            <li><a href="#demo-8">No Copy Button</a></li>
+            <li><a href="#demo-9">Combined Attributes</a></li>
           </ul>
         </div>
 
         <div style="flex: 1">
           <h4>Advanced Features</h4>
           <ul>
-            <li><a href="#demo-9">Code Streaming Demo</a></li>
-            <li><a href="#demo-10">Dynamic Element Highlighting</a></li>
-            <li><a href="#demo-11">Global Configuration</a></li>
-            <li><a href="#demo-12">Override Global Settings</a></li>
+            <li><a href="#demo-10">Code Streaming Demo</a></li>
+            <li><a href="#demo-11">Dynamic Element Highlighting</a></li>
+            <li><a href="#demo-12">Global Configuration</a></li>
+            <li><a href="#demo-13">Override Global Settings</a></li>
           </ul>
         </div>
       </div>
@@ -309,8 +310,47 @@ for (let i = 1; i <= 5; i++) {
 		</code>
 	</div>
 
+  <div class="demo-section">
+    <h2 id="demo-7">7. Custom Line Numbering (<code>data-line-start</code>)</h2>
+    <p>
+      The <code>data-line-start</code> attribute lets you set a custom starting line number (which can be positive or negative). Adding this attribute automatically enables line numbers for the code block, even without <code>data-with-lines</code>. This is particularly useful for code excerpts from larger files or when you want to show specific line references.
+    </p>
+    
+    <p style="margin-top: 1rem;">
+      Starting from line 100:
+    </p>
+    <code class="highlight-it" data-line-start="100" data-language="javascript">
+function calculateArea(radius) {
+  // Formula for circle area
+  return Math.PI * radius * radius;
+}
+
+// Example with radius = 5
+const area = calculateArea(5);
+console.log(`The area of the circle is: ${area.toFixed(2)}`);
+    </code>
+    
+    <p style="margin-top: 1.5rem;">
+      Negative line numbers work too (useful for showing context before main code):
+    </p>
+    <code class="highlight-it" data-line-start="-3" data-language="python">
+# Setup code
+import math
+
+# Main implementation  
+def calculate_circle_area(radius):
+  """Calculate the area of a circle with the given radius."""
+  return math.pi * radius ** 2
+
+# Example usage
+radius = 5
+area = calculate_circle_area(radius)
+print(f"The area of a circle with radius {radius} is: {area:.2f}")
+    </code>
+  </div>
+
 	<div class="demo-section">
-		<h2 id="demo-7">7. No Copy Button (<code>data-no-copy</code>)</h2>
+		<h2 id="demo-8">8. No Copy Button (<code>data-no-copy</code>)</h2>
 		<p>
 			The <code>data-no-copy</code> attribute hides the copy button entirely. This is useful when you want to display code that shouldn't be copied or for purely demonstrative code snippets.
 		</p>
@@ -324,7 +364,7 @@ function doNotCopyMe() {
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-8">8. Line Numbers with No Header (<code>data-with-lines</code> + <code>data-no-header</code>)</h2>
+		<h2 id="demo-9">9. Line Numbers with No Header (<code>data-with-lines</code> + <code>data-no-header</code>)</h2>
 		<p>You can combine multiple attributes like <code>data-with-lines</code> and <code>data-no-header</code> to create a custom display. This example shows line numbers with no header bar, giving a clean look while maintaining line reference capabilities.</p>
 		<code class="highlight-it" data-with-lines data-no-header data-language="python">
 def quicksort(arr):
@@ -359,7 +399,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-9">9. Code Streaming Demo (<code>data-with-reload</code>)</h2>
+		<h2 id="demo-10">10. Code Streaming Demo (<code>data-with-reload</code>)</h2>
 		<p>
 			The <code>data-with-reload</code> attribute enables live updates, automatically rehighlighting code when content changes. This is particularly useful for applications that stream code responses in real-time. The original code element is preserved while the highlighted version is displayed and updated dynamically.
 		</p>
@@ -392,7 +432,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-10">10. Dynamic Element Highlighting (<code>HighlightIt.highlight()</code>)</h2>
+		<h2 id="demo-11">11. Dynamic Element Highlighting (<code>HighlightIt.highlight()</code>)</h2>
 		<p>
 			This example demonstrates how to programmatically highlight dynamically created elements using the <code>HighlightIt.highlight()</code> method. This approach allows you to create and customize code blocks on the fly with options like <code>withLines</code>, <code>withReload</code>, <code>addCopyButton</code>, and more.
 		</p>
@@ -404,7 +444,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-11">11. Custom Global Initialization with Different Options</h2>
+		<h2 id="demo-12">12. Custom Global Initialization with Different Options</h2>
 		<p>
 			The following elements demonstrate how <code>addHeader</code>, <code>addLines</code>, and <code>addCopyButton</code> global configuration options work. These are created programmatically with different configurations.
 		</p>
@@ -412,7 +452,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-12">12. Element Override of Global Settings</h2>
+		<h2 id="demo-13">13. Element Override of Global Settings</h2>
 		<p>
 			This example demonstrates how data attributes (<code>data-no-header</code>, <code>data-with-lines</code>, <code>data-no-copy</code>) can override global settings on individual elements.
 		</p>
