@@ -253,16 +253,16 @@ async fn serve_sitemap(
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>{}/</loc>
-    <lastmod>{}</lastmod>
+    <loc>BASE_URL/</loc>
+    <lastmod>CURRENT_DATETIME</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 "#,
     );
 
-    sitemap = sitemap.replace("{}", &base_url);
-    sitemap = sitemap.replace("{}", &current_datetime);
+    sitemap = sitemap.replace("BASE_URL", &base_url);
+    sitemap = sitemap.replace("CURRENT_DATETIME", &current_datetime);
 
     for version_info in all_versions {
         let version_entry = format!(
