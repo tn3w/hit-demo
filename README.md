@@ -49,6 +49,16 @@ sudo systemctl enable hit-demo
 sudo systemctl start hit-demo
 ```
 
+### Redeploy
+
+```bash
+git pull
+cargo build --release
+sudo systemctl stop hit-demo
+sudo cp target/release/hit-demo /usr/local/bin/
+sudo systemctl start hit-demo
+```
+
 ### Verification
 ```bash
 sudo systemctl status hit-demo
