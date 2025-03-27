@@ -496,7 +496,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: true,
                 addLines: false
             },
-            code: "// This is default configuration\nfunction example() {\n  return 'Default config';\n}"
+            code: "// This is default configuration\nfunction example() {\n return 'Default config';\n}"
         },
         {
             title: "No Header Configuration",
@@ -506,7 +506,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: true,
                 addLines: false
             },
-            code: "// This has no header but has a floating copy button\nfunction example() {\n  return 'No header config';\n}"
+            code: "// This has no header but has a floating copy button\nfunction example() {\n return 'No header config';\n}"
         },
         {
             title: "With Line Numbers Configuration",
@@ -516,7 +516,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: true,
                 addLines: true
             },
-            code: "// This has line numbers enabled\nfunction example() {\n  return 'With line numbers';\n}"
+            code: "// This has line numbers enabled\nfunction example() {\n return 'With line numbers';\n}"
         },
         {
             title: "No Copy Button Configuration",
@@ -526,7 +526,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: false,
                 addLines: false
             },
-            code: "// This has no copy button\nfunction example() {\n  return 'No copy button';\n}"
+            code: "// This has no copy button\nfunction example() {\n   return 'No copy button';\n}"
         },
         {
             title: "Minimal Configuration",
@@ -536,7 +536,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: false,
                 addLines: false
             },
-            code: "// This has no header and no copy button\nfunction example() {\n  return 'Minimal config';\n}"
+            code: "// This has no header and no copy button\nfunction example() {\n return 'Minimal config';\n}"
         },
         {
             title: "Full Configuration",
@@ -546,7 +546,7 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))`
                 addCopyButton: true,
                 addLines: true
             },
-            code: "// This has everything enabled\nfunction example() {\n  return 'Full config';\n}"
+            code: "// This has everything enabled\nfunction example() {\n   return 'Full config';\n}"
         }
     ];
     
