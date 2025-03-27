@@ -54,6 +54,7 @@ sudo systemctl start hit-demo
 ```bash
 git pull
 cargo build --release
+sudo cp -r ./* /var/lib/hit-demo/
 sudo systemctl stop hit-demo
 sudo cp target/release/hit-demo /usr/local/bin/
 sudo systemctl start hit-demo
