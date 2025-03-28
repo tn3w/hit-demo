@@ -78,18 +78,19 @@
             <li><a href="#demo-6">Line Numbers</a></li>
             <li><a href="#demo-7">Custom Line Numbering</a></li>
             <li><a href="#demo-8">Share Button</a></li>
-            <li><a href="#demo-9">No Copy Button</a></li>
-            <li><a href="#demo-10">Combined Attributes</a></li>
+            <li><a href="#demo-9">Download Button</a></li>
+            <li><a href="#demo-10">No Copy Button</a></li>
+            <li><a href="#demo-11">Combined Attributes</a></li>
           </ul>
         </div>
 
         <div style="flex: 1">
           <h4>Advanced Features</h4>
           <ul>
-            <li><a href="#demo-11">Code Streaming Demo</a></li>
-            <li><a href="#demo-12">Dynamic Element Highlighting</a></li>
-            <li><a href="#demo-13">Global Configuration</a></li>
-            <li><a href="#demo-14">Override Global Settings</a></li>
+            <li><a href="#demo-12">Code Streaming Demo</a></li>
+            <li><a href="#demo-13">Dynamic Element Highlighting</a></li>
+            <li><a href="#demo-14">Global Configuration</a></li>
+            <li><a href="#demo-15">Override Global Settings</a></li>
           </ul>
         </div>
       </div>
@@ -364,8 +365,22 @@ function shareCode() {
     </code>
   </div>
 
+  <div class="demo-section">
+    <h2 id="demo-9">9. With Download Button (<code>data-with-download</code>)</h2>
+    <p>
+      The <code>data-with-download</code> attribute adds a download button to the code block. This is useful when you want your users to download the code block.
+    </p>
+    <code class="highlight-it" data-language="javascript" data-with-download>
+// This code block has a download button
+function downloadCode() {
+  console.log("Downloading code...");
+  // Add your download logic here
+}
+    </code>
+  </div>
+
 	<div class="demo-section">
-		<h2 id="demo-9">9. No Copy Button (<code>data-no-copy</code>)</h2>
+		<h2 id="demo-10">10. No Copy Button (<code>data-no-copy</code>)</h2>
 		<p>
 			The <code>data-no-copy</code> attribute hides the copy button entirely. This is useful when you want to display code that shouldn't be copied or for purely demonstrative code snippets.
 		</p>
@@ -379,7 +394,7 @@ function doNotCopyMe() {
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-10">10. Line Numbers with No Header (<code>data-with-lines</code> + <code>data-no-header</code>)</h2>
+		<h2 id="demo-11">11. Line Numbers with No Header (<code>data-with-lines</code> + <code>data-no-header</code>)</h2>
 		<p>You can combine multiple attributes like <code>data-with-lines</code> and <code>data-no-header</code> to create a custom display. This example shows line numbers with no header bar, giving a clean look while maintaining line reference capabilities.</p>
 		<code class="highlight-it" data-with-lines data-no-header data-language="python">
 def quicksort(arr):
@@ -414,7 +429,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-11">11. Code Streaming Demo (<code>data-with-reload</code>)</h2>
+		<h2 id="demo-12">12. Code Streaming Demo (<code>data-with-reload</code>)</h2>
 		<p>
 			The <code>data-with-reload</code> attribute enables live updates, automatically rehighlighting code when content changes. This is particularly useful for applications that stream code responses in real-time. The original code element is preserved while the highlighted version is displayed and updated dynamically.
 		</p>
@@ -441,13 +456,13 @@ print("Sorted array:", sorted_numbers)
 			</span>
 		</div>
 		
-		<pre id="python-code" class="highlight-it" data-language="python" data-with-reload data-with-lines>
+		<pre id="python-code" class="highlight-it" data-language="python" data-with-reload data-with-lines data-with-download data-with-share>
 			# Python code will be streamed here
 		</pre>
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-12">12. Dynamic Element Highlighting (<code>HighlightIt.highlight()</code>)</h2>
+		<h2 id="demo-13">13. Dynamic Element Highlighting (<code>HighlightIt.highlight()</code>)</h2>
 		<p>
 			This example demonstrates how to programmatically highlight dynamically created elements using the <code>HighlightIt.highlight()</code> method. This approach allows you to create and customize code blocks on the fly with options like <code>withLines</code>, <code>withReload</code>, <code>addCopyButton</code>, and more.
 		</p>
@@ -459,7 +474,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-13">13. Custom Global Initialization with Different Options</h2>
+		<h2 id="demo-14">14. Custom Global Initialization with Different Options</h2>
 		<p>
 			The following elements demonstrate how <code>addHeader</code>, <code>addLines</code>, and <code>addCopyButton</code> global configuration options work. These are created programmatically with different configurations.
 		</p>
@@ -467,7 +482,7 @@ print("Sorted array:", sorted_numbers)
 	</div>
 
 	<div class="demo-section">
-		<h2 id="demo-14">14. Element Override of Global Settings</h2>
+		<h2 id="demo-15">15. Element Override of Global Settings</h2>
 		<p>
 			This example demonstrates how data attributes (<code>data-no-header</code>, <code>data-with-lines</code>, <code>data-no-copy</code>) can override global settings on individual elements.
 		</p>
